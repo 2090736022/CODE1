@@ -1,0 +1,22 @@
+{
+  "start": "20251015",
+  "end": "20261014",
+  "forward_days": 10,
+  "generated_at": "2026-10-15T18:01:45.251480+08:00",
+  "stock_count": 3012,
+  "loaded_stocks": 3012,
+  "daily_files": 3200,
+  "basic_dates": 242,
+  "missing_basic_dates": 0,
+  "cache_dir": "D:\\pythonp\\model_artifacts\\download_daily",
+  "stock_file": "D:\\pythonp\\number.csv",
+  "lookback_years": 1,
+  "min_total_mv": 1000000,
+  "limit_up_pct": 9.51,
+  "source_sha256": "1383b0031ffa47cf7c9214a244b409b627767103a11cdcbcca6ff0e8b201e114",
+  "program_sha256": "4ac5a01750351f3ae27861c940eec827197fc7af5abd4571a7486d71439713e0",
+  "candidates": 3892,
+  "technical_matches": 374,
+  "basic_missing": 0,
+  "short_history": 0
+}

@@ -1,0 +1,15 @@
+{
+  "strategy": "test",
+  "verified_signals": 151,
+  "complete": 150,
+  "all_match": true,
+  "unit_tests_passed": 8,
+  "daily_mean_pct": 20.676857771868573,
+  "trade_mean_pct": 19.73846174906731,
+  "branches": {
+    "main": 133,
+    "volume_price": 18
+  },
+  "report_tables": 6,
+  "report_charts": 1
+}

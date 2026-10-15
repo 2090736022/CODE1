@@ -1,0 +1,14 @@
+{
+  "strategy": "turn",
+  "verified_signals": 127,
+  "complete": 123,
+  "all_match": true,
+  "unit_tests_passed": 8,
+  "daily_mean_pct": 15.022263060294499,
+  "trade_mean_pct": 15.965729512571613,
+  "branches": {
+    "main": 127
+  },
+  "report_tables": 6,
+  "report_charts": 1
+}

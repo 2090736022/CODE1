@@ -1,0 +1,569 @@
+<!doctype html><html lang='zh-CN'><meta charset='utf-8'><title>反转 turn策略近一年回测报告</title>
+<style>body{font:15px/1.75 'Microsoft YaHei',sans-serif;max-width:1200px;margin:40px auto;padding:0 24px;color:#243247}h1,h2{color:#153c60}table{border-collapse:collapse;width:100%;font-size:12px;margin:18px 0}th,td{border:1px solid #ccd6df;padding:7px;text-align:left;overflow-wrap:anywhere}th{background:#edf3f8}tr:nth-child(even){background:#f7f9fb}@media print{body{margin:0;max-width:none}table{font-size:9px}thead{display:table-header-group}tr{break-inside:avoid}h2{break-after:avoid}}</style><body>
+<h1>反转 turn策略近一年回测报告</h1>
+<p>生成时间：2026-10-15T17:54:38.868539+08:00。信号区间：20251015 至 20261014。</p>
+<p>本报告复现 monthly_strategy_backtest.py 的事后最佳收益口径，未来窗口为 10 个股票交易记录。</p>
+<h2>主要结果</h2>
+<p>扫描股票 3012 只，成功读取 3012 只；日历覆盖 242 个交易日。</p>
+<p>共发现 127 条股票日期信号，其中 123 条可计算收益，4 条未完成或无有效未来价格；涉及 113 只股票。</p>
+<p>有样本日的日均收益率再平均为 15.02%；逐笔等权平均为 15.97%；有样本月份的月均再平均为 13.74%。三者权重不同。</p>
+<p>该收益来自事后选择最佳买卖日期，不代表可执行收益、年度账户收益或复利收益。</p>
+<h2>回测和统计口径</h2>
+<p>1. 每个交易日按当日及以前的数据判断信号；每个判断日的数据起点与原 run_search 一致，为日期数值减去配置的回看年数乘 10000，MACD 也在该截断区间重新计算。</p>
+<p>2. 信号日不参与收益计算。取其后 10 根日 K，遍历所有开盘买入日，再在严格晚于买入日的日期中选择最高收盘价卖出，保留最大的卖价/买价。买入不一定在次日，也不一定是窗口最低开盘价。</p>
+<p>3. 收益比值 1.100 表示收益率 10%。保留旧列名 future_5d 以便对照，但实际窗口由 forward_days 决定。</p>
+<p>4. 日均为当日所有完整样本收益比值的平均；月均为该月有完整样本的日均比值的平均。无样本日记为空，不按零收益混入平均。</p>
+<p>5. 与案例一致，未扣佣金、印花税、滑点，不模拟涨跌停成交、资金规模、仓位、复利或重叠持仓。不会输出账户净值、最大回撤或夏普率。</p>
+<p>6. 股票停牌时，未来窗口按该股票实际日 K 记录推进；即使超过市场的同数量交易日，也遵循原函数口径。</p>
+<p>7. 数据只读取本地 CSV，不联网、不补下载，不更新原股票池。未来窗口可使用信号区间结束后的已缓存数据，但信号计算不会使用未来数据。</p>
+<h2>筛选条件</h2>
+<p>至少 120 根日 K。普通换手率 turnover_rate &gt; 4%，总市值 &gt; 90 亿元。</p>
+<p>股票来自当前配置股票池，名称含 ST 的排除。每个判断日只使用截至该日、原 run_search 规定的历史区间；最终调用源策略函数，不执行原 run_search 的写股票池操作。</p>
+<p>涨停沿用源函数：pct_chg 有值时 ≥ 9.51%；缺失时比较收盘价与昨收价的对应倍数。</p>
+<p>昨日收盘 &lt; 前日收盘，昨日成交量 &gt; 前日量，昨日 MACD 柱值 &lt; 0。</p>
+<p>当日收盘 &gt; 昨日收盘，同时收盘 &gt; 当日开盘，涨幅 &gt; 2%；当日量 &gt; 昨日量，但涨幅 &gt; 9.85% 时免除该量能条件。</p>
+<p>当日收盘同时 &gt; MA20、MA30、MA60、MA120；当日 DIF &gt; 0、DEA &gt; 0，MACD 参数 12、26、9，柱值为 2×(DIF−DEA)。</p>
+<p>最近 30 个交易日（含当日）累计至少两次涨停，不要求连续。函数名中的 40 日和两连板不是当前实际逻辑。</p>
+<p>此前 12 个月（不含当日）任意连续 5 日至少两次涨停，或累计至少五次涨停。</p>
+<p>最近四次收盘价相对前日的变化中至少两次下跌；这里不是按开盘收盘定义的阴线。昨日 MA5 &lt; 前日 MA5。</p>
+<p>最高价高于 MA5/MA10、成交量超过前 20 日均量 1.05 倍虽在源代码中计算，但没有加入返回条件，回测不额外要求这两项。</p>
+<h2>样本收益分布</h2>
+<p>“大于零比例”描述的是事后最佳结果，不是实盘胜率。</p>
+<h2>数据覆盖和偏差</h2>
+<p>本地日 K 文件数 3200，回测区间 daily_basic 日期数 242；股票交易日相对基础缓存日期缺口数 0。</p>
+<p>候选判断次数 549，原策略技术条件通过次数 307，基础数据缺失次数 0，历史长度不足次数 2。</p>
+<p>有区间日 K 的股票 3012 只；日 K 最后日期早于信号区间最后缓存交易日的股票 6 只（可能为停牌、退市或缓存未更新，不能仅据此判定原因）。区间首月和末月可能是不完整自然月。</p>
+<p>audit.csv 保留逐股票读取状态、最早/最晚数据日期、区间记录数及错误；日期缺口见 calendar_audit.csv。缺失数据不当作策略拒绝，基础数据不足的候选单独记录。</p>
+<p>当前股票池和当前 ST 名称用于历史回测，存在幸存者偏差及历史状态偏差；没有历史退市股票池。日线使用缓存原始价格，未另做复权，除权除息可能影响跨日价格比值和指标。</p>
+<p>报告不证明每一日所有股票均完整覆盖；仅在本地具备数据的股票日期上判断。最后若干日期通常因未来数据不足而无法评价，应结合 daily_summary.csv 的完整样本数阅读。</p>
+<p>MACD 初始化依赖原策略截断窗口。近一年边界和股票上市日期不足以覆盖所需历史时，不产生可验证信号。</p>
+<h2>输出文件和复现</h2>
+<p>signals.csv：全部通过条件的信号及未来数据状态。trades.csv：可计算的最佳买卖明细。daily_summary.csv：逐交易日统计。monthly_summary.csv：逐月统计。</p>
+<p>strategy_backtest.csv：与原案例同列的每日和月度汇总，比值四舍五入到三位小数。audit.csv：逐股票覆盖情况。candidate_issues.csv：基础数据缺失候选。metadata.json：参数、源文件哈希和数据覆盖。</p>
+<p>运行命令：python turn_year_backtest.py --start 20251015 --end 20261014 --forward-days 10。</p>
+<p>收益细节未提前四舍五入，汇总以原始精度计算。未把平均最佳收益换算成年化收益。</p>
+<h2>分布统计</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>指标</th>
+      <th>数值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>完整样本数</td>
+      <td>123</td>
+    </tr>
+    <tr>
+      <td>平均收益率 %</td>
+      <td>15.97</td>
+    </tr>
+    <tr>
+      <td>中位数 %</td>
+      <td>13.72</td>
+    </tr>
+    <tr>
+      <td>标准差 %</td>
+      <td>13.35</td>
+    </tr>
+    <tr>
+      <td>最低值 %</td>
+      <td>-0.87</td>
+    </tr>
+    <tr>
+      <td>最高值 %</td>
+      <td>63.15</td>
+    </tr>
+    <tr>
+      <td>25% 分位 %</td>
+      <td>6.82</td>
+    </tr>
+    <tr>
+      <td>75% 分位 %</td>
+      <td>20.04</td>
+    </tr>
+    <tr>
+      <td>最佳收益仍大于零的比例 %</td>
+      <td>98.37</td>
+    </tr>
+    <tr>
+      <td>最佳收益达到 5% 的比例 %</td>
+      <td>82.93</td>
+    </tr>
+    <tr>
+      <td>最佳收益达到 10% 的比例 %</td>
+      <td>57.72</td>
+    </tr>
+  </tbody>
+</table>
+<h2>逐月统计</h2>
+<svg viewBox="0 0 1050 420" role="img" aria-label="各月份事后最佳收益率均值柱状图" xmlns="http://www.w3.org/2000/svg">
+<rect width="1050" height="420" fill="#fff"/>
+<text x="25" y="28" font-size="18">各月份日均最佳收益率的平均值（%）</text>
+<line x1="30" y1="200" x2="1030" y2="200" stroke="#a0acba"/>
+<rect x="40" y="112.23" width="42" height="87.77" fill="#27799c"/>
+<text x="40" y="104.23" font-size="13">14.3%</text>
+<text x="40" y="375" font-size="12">202510</text>
+<rect x="116" y="158.11" width="42" height="41.89" fill="#27799c"/>
+<text x="116" y="150.11" font-size="13">6.8%</text>
+<text x="116" y="375" font-size="12">202511</text>
+<rect x="192" y="132.75" width="42" height="67.25" fill="#27799c"/>
+<text x="192" y="124.75" font-size="13">11.0%</text>
+<text x="192" y="375" font-size="12">202512</text>
+<rect x="268" y="118.84" width="42" height="81.16" fill="#27799c"/>
+<text x="268" y="110.84" font-size="13">13.3%</text>
+<text x="268" y="375" font-size="12">202601</text>
+<rect x="344" y="78.96" width="42" height="121.04" fill="#27799c"/>
+<text x="344" y="70.96" font-size="13">19.8%</text>
+<text x="344" y="375" font-size="12">202602</text>
+<rect x="420" y="129.46" width="42" height="70.54" fill="#27799c"/>
+<text x="420" y="121.46" font-size="13">11.5%</text>
+<text x="420" y="375" font-size="12">202603</text>
+<rect x="496" y="80.68" width="42" height="119.32" fill="#27799c"/>
+<text x="496" y="72.68" font-size="13">19.5%</text>
+<text x="496" y="375" font-size="12">202604</text>
+<rect x="572" y="50.00" width="42" height="150.00" fill="#27799c"/>
+<text x="572" y="42.00" font-size="13">24.5%</text>
+<text x="572" y="375" font-size="12">202605</text>
+<rect x="648" y="84.34" width="42" height="115.66" fill="#27799c"/>
+<text x="648" y="76.34" font-size="13">18.9%</text>
+<text x="648" y="375" font-size="12">202606</text>
+<rect x="724" y="154.25" width="42" height="45.75" fill="#27799c"/>
+<text x="724" y="146.25" font-size="13">7.5%</text>
+<text x="724" y="375" font-size="12">202607</text>
+<rect x="800" y="163.74" width="42" height="36.26" fill="#27799c"/>
+<text x="800" y="155.74" font-size="13">5.9%</text>
+<text x="800" y="375" font-size="12">202608</text>
+<rect x="876" y="127.19" width="42" height="72.81" fill="#27799c"/>
+<text x="876" y="119.19" font-size="13">11.9%</text>
+<text x="876" y="375" font-size="12">202609</text>
+<text x="952" y="185" font-size="12">无样本</text>
+<text x="952" y="375" font-size="12">202610</text>
+</svg>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>月份</th>
+      <th>交易日数</th>
+      <th>信号数</th>
+      <th>完整样本数</th>
+      <th>有完整样本日数</th>
+      <th>日均比值再平均</th>
+      <th>对应收益率 %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>202510</td>
+      <td>13</td>
+      <td>5</td>
+      <td>5</td>
+      <td>3</td>
+      <td>1.1433</td>
+      <td>14.3343</td>
+    </tr>
+    <tr>
+      <td>202511</td>
+      <td>20</td>
+      <td>6</td>
+      <td>6</td>
+      <td>5</td>
+      <td>1.0684</td>
+      <td>6.8410</td>
+    </tr>
+    <tr>
+      <td>202512</td>
+      <td>23</td>
+      <td>2</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1.1098</td>
+      <td>10.9826</td>
+    </tr>
+    <tr>
+      <td>202601</td>
+      <td>20</td>
+      <td>9</td>
+      <td>9</td>
+      <td>7</td>
+      <td>1.1325</td>
+      <td>13.2549</td>
+    </tr>
+    <tr>
+      <td>202602</td>
+      <td>14</td>
+      <td>13</td>
+      <td>13</td>
+      <td>9</td>
+      <td>1.1977</td>
+      <td>19.7678</td>
+    </tr>
+    <tr>
+      <td>202603</td>
+      <td>22</td>
+      <td>22</td>
+      <td>22</td>
+      <td>8</td>
+      <td>1.1152</td>
+      <td>11.5207</td>
+    </tr>
+    <tr>
+      <td>202604</td>
+      <td>21</td>
+      <td>12</td>
+      <td>12</td>
+      <td>7</td>
+      <td>1.1949</td>
+      <td>19.4861</td>
+    </tr>
+    <tr>
+      <td>202605</td>
+      <td>18</td>
+      <td>14</td>
+      <td>14</td>
+      <td>6</td>
+      <td>1.2450</td>
+      <td>24.4969</td>
+    </tr>
+    <tr>
+      <td>202606</td>
+      <td>21</td>
+      <td>24</td>
+      <td>24</td>
+      <td>8</td>
+      <td>1.1889</td>
+      <td>18.8882</td>
+    </tr>
+    <tr>
+      <td>202607</td>
+      <td>23</td>
+      <td>6</td>
+      <td>6</td>
+      <td>2</td>
+      <td>1.0747</td>
+      <td>7.4715</td>
+    </tr>
+    <tr>
+      <td>202608</td>
+      <td>21</td>
+      <td>4</td>
+      <td>4</td>
+      <td>4</td>
+      <td>1.0592</td>
+      <td>5.9211</td>
+    </tr>
+    <tr>
+      <td>202609</td>
+      <td>21</td>
+      <td>9</td>
+      <td>6</td>
+      <td>6</td>
+      <td>1.1189</td>
+      <td>11.8903</td>
+    </tr>
+    <tr>
+      <td>202610</td>
+      <td>5</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>无数据</td>
+      <td>无数据</td>
+    </tr>
+  </tbody>
+</table>
+<h2>最佳十条完整样本</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>代码</th>
+      <th>名称</th>
+      <th>信号日</th>
+      <th>最佳买入日</th>
+      <th>买入开盘价</th>
+      <th>最佳卖出日</th>
+      <th>卖出收盘价</th>
+      <th>最佳收益率 %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>000811.SZ</td>
+      <td>冰轮环境</td>
+      <td>20260615</td>
+      <td>20260616</td>
+      <td>34.4600</td>
+      <td>20260630</td>
+      <td>56.2200</td>
+      <td>63.1457</td>
+    </tr>
+    <tr>
+      <td>603986.SH</td>
+      <td>兆易创新</td>
+      <td>20260615</td>
+      <td>20260617</td>
+      <td>521.0000</td>
+      <td>20260629</td>
+      <td>840.0000</td>
+      <td>61.2284</td>
+    </tr>
+    <tr>
+      <td>002491.SZ</td>
+      <td>通鼎互联</td>
+      <td>20260615</td>
+      <td>20260616</td>
+      <td>24.3700</td>
+      <td>20260625</td>
+      <td>38.5000</td>
+      <td>57.9811</td>
+    </tr>
+    <tr>
+      <td>600589.SH</td>
+      <td>大位科技</td>
+      <td>20260203</td>
+      <td>20260206</td>
+      <td>8.8100</td>
+      <td>20260212</td>
+      <td>13.8600</td>
+      <td>57.3212</td>
+    </tr>
+    <tr>
+      <td>002929.SZ</td>
+      <td>润建股份</td>
+      <td>20260430</td>
+      <td>20260506</td>
+      <td>64.3000</td>
+      <td>20260519</td>
+      <td>97.7800</td>
+      <td>52.0684</td>
+    </tr>
+    <tr>
+      <td>002741.SZ</td>
+      <td>光华科技</td>
+      <td>20260609</td>
+      <td>20260612</td>
+      <td>28.1500</td>
+      <td>20260622</td>
+      <td>41.5600</td>
+      <td>47.6377</td>
+    </tr>
+    <tr>
+      <td>000657.SZ</td>
+      <td>中钨高新</td>
+      <td>20260206</td>
+      <td>20260210</td>
+      <td>47.6300</td>
+      <td>20260302</td>
+      <td>69.0200</td>
+      <td>44.9087</td>
+    </tr>
+    <tr>
+      <td>605376.SH</td>
+      <td>博迁新材</td>
+      <td>20260519</td>
+      <td>20260520</td>
+      <td>132.3900</td>
+      <td>20260602</td>
+      <td>190.6400</td>
+      <td>43.9988</td>
+    </tr>
+    <tr>
+      <td>002491.SZ</td>
+      <td>通鼎互联</td>
+      <td>20260506</td>
+      <td>20260507</td>
+      <td>18.7800</td>
+      <td>20260513</td>
+      <td>26.9500</td>
+      <td>43.5037</td>
+    </tr>
+    <tr>
+      <td>003018.SZ</td>
+      <td>金富科技</td>
+      <td>20260512</td>
+      <td>20260513</td>
+      <td>49.4600</td>
+      <td>20260520</td>
+      <td>69.8400</td>
+      <td>41.2050</td>
+    </tr>
+  </tbody>
+</table>
+<h2>最差十条完整样本</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>代码</th>
+      <th>名称</th>
+      <th>信号日</th>
+      <th>最佳买入日</th>
+      <th>买入开盘价</th>
+      <th>最佳卖出日</th>
+      <th>卖出收盘价</th>
+      <th>最佳收益率 %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>605358.SH</td>
+      <td>立昂微</td>
+      <td>20251110</td>
+      <td>20251117</td>
+      <td>33.1900</td>
+      <td>20251118</td>
+      <td>32.9000</td>
+      <td>-0.8738</td>
+    </tr>
+    <tr>
+      <td>002970.SZ</td>
+      <td>锐明技术</td>
+      <td>20260310</td>
+      <td>20260317</td>
+      <td>71.1100</td>
+      <td>20260318</td>
+      <td>71.0400</td>
+      <td>-0.0984</td>
+    </tr>
+    <tr>
+      <td>000070.SZ</td>
+      <td>特发信息</td>
+      <td>20260310</td>
+      <td>20260323</td>
+      <td>14.2800</td>
+      <td>20260324</td>
+      <td>14.4200</td>
+      <td>0.9804</td>
+    </tr>
+    <tr>
+      <td>000949.SZ</td>
+      <td>新乡化纤</td>
+      <td>20260310</td>
+      <td>20260313</td>
+      <td>7.4100</td>
+      <td>20260316</td>
+      <td>7.5200</td>
+      <td>1.4845</td>
+    </tr>
+    <tr>
+      <td>000831.SZ</td>
+      <td>中国稀土</td>
+      <td>20260827</td>
+      <td>20260828</td>
+      <td>61.0000</td>
+      <td>20260831</td>
+      <td>62.0600</td>
+      <td>1.7377</td>
+    </tr>
+    <tr>
+      <td>600330.SH</td>
+      <td>天通股份</td>
+      <td>20260916</td>
+      <td>20260921</td>
+      <td>29.3900</td>
+      <td>20260923</td>
+      <td>29.9800</td>
+      <td>2.0075</td>
+    </tr>
+    <tr>
+      <td>603308.SH</td>
+      <td>应流股份</td>
+      <td>20260513</td>
+      <td>20260522</td>
+      <td>72.0000</td>
+      <td>20260525</td>
+      <td>73.5700</td>
+      <td>2.1806</td>
+    </tr>
+    <tr>
+      <td>600604.SH</td>
+      <td>市北高新</td>
+      <td>20260826</td>
+      <td>20260901</td>
+      <td>4.7400</td>
+      <td>20260904</td>
+      <td>4.8600</td>
+      <td>2.5316</td>
+    </tr>
+    <tr>
+      <td>601083.SH</td>
+      <td>锦江航运</td>
+      <td>20260401</td>
+      <td>20260402</td>
+      <td>12.7900</td>
+      <td>20260408</td>
+      <td>13.2000</td>
+      <td>3.2056</td>
+    </tr>
+    <tr>
+      <td>003036.SZ</td>
+      <td>泰坦股份</td>
+      <td>20260625</td>
+      <td>20260702</td>
+      <td>85.0400</td>
+      <td>20260703</td>
+      <td>87.8100</td>
+      <td>3.2573</td>
+    </tr>
+  </tbody>
+</table>
+<h2>未完成样本</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>ts_code</th>
+      <th>name</th>
+      <th>as_of_date</th>
+      <th>status</th>
+      <th>future_rows</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>600172.SH</td>
+      <td>黄河旋风</td>
+      <td>20260923</td>
+      <td>insufficient_future</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>002708.SZ</td>
+      <td>光洋股份</td>
+      <td>20260928</td>
+      <td>insufficient_future</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>603936.SH</td>
+      <td>博敏电子</td>
+      <td>20260929</td>
+      <td>insufficient_future</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>605168.SH</td>
+      <td>三人行</td>
+      <td>20261009</td>
+      <td>insufficient_future</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+<h2>信号分支统计</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>branch</th>
+      <th>signal_count</th>
+      <th>complete_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>main</td>
+      <td>127</td>
+      <td>123</td>
+    </tr>
+  </tbody>
+</table>
+</body></html>
