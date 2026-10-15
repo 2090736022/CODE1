@@ -1,0 +1,3 @@
+﻿ts_code,trade_date,minute_trade_date,previous_trade_date,minute_match_time,minute_pct_chg,cumulative_volume,previous_cumulative_volume,minute_volume_ratio,observation_daily_volume_ratio,minute_volume_threshold,volume_increase_pct,volume_unit,volume_source,circ_mv,turnover_rate_f,observation_turnover_rate_f
+002613.SZ,20260916,20260917,20260916,09:47:00,10.028653295128919,501912.0,135564.0,3.702398866955829,3.092705383484835,3.4,270.2398866955829,手,腾讯当日累计成交量,270011.4931,6.5671,28.5585
+603773.SH,20260916,20260917,20260916,09:46:00,10.000000000000009,160616.0,42308.0,3.79635057199584,2.1978390090974806,3.4,279.63505719958397,手,腾讯当日累计成交量,2080523.836,15.3259,31.8464
