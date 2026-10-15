@@ -184,3 +184,5 @@ python -m unittest test_botton_year_backtest test_search_year_backtests test_hmm
 ```
 
 本仓库用于个人研究与辅助决策。实验脚本、接口探测程序和教学示例不代表已完成生产验证的交易功能；当前股票池、历史状态、复权、成交约束及数据覆盖均可能影响研究结果。历史回测、理论最佳收益和模型预测不构成未来收益保证。
+
+如有需要可联系本人邮箱2090736022@qq.com
