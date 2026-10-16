@@ -40,7 +40,7 @@ def get_end_date():
 # Tushare 配置
 # =====================
 
-TUSHARE_TOKEN = 'a14f37a303d0e280c839224d331315323a8cde36ffbe5c41757fef31'
+TUSHARE_TOKEN = ''
 
 
 # =====================
