@@ -1,0 +1,8 @@
+{
+  "real_stock_count": 10,
+  "sample_dates": 13,
+  "attempts": 130,
+  "complete": 124,
+  "unit_tests_passed": 6,
+  "chronology_prices_probabilities_and_report_checks": true
+}
